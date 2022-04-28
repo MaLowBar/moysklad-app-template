@@ -1,0 +1,1 @@
+# moysklad-app-template
