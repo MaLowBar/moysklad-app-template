@@ -9,17 +9,19 @@ import (
 
 type FileStorage struct{}
 
+type appInfo struct {
+	AccountId   string                        `json:"account_id"`
+	Status      moyskladapptemplate.AppStatus `json:"status"`
+	AccessToken string                        `json:"access_token"`
+}
+
 func (fs FileStorage) Activate(accountId, accessToken string) (moyskladapptemplate.AppStatus, error) {
-	app := struct {
-		AccountId   string                        `json:"account_id"`
-		Status      moyskladapptemplate.AppStatus `json:"status"`
-		AccessToken string                        `json:"access_token"`
-	}{AccountId: accountId, Status: moyskladapptemplate.StatusActivated, AccessToken: accessToken}
+	app := appInfo{AccountId: accountId, Status: moyskladapptemplate.StatusActivated, AccessToken: accessToken}
 	data, err := json.Marshal(app)
 	if err != nil {
 		return "", err
 	}
-	err = os.WriteFile(fmt.Sprintf("%s.app", accountId), data, 0666)
+	err = os.WriteFile(fmt.Sprintf("%s.app", accountId), data, 0644)
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +29,24 @@ func (fs FileStorage) Activate(accountId, accessToken string) (moyskladapptempla
 }
 
 func (fs FileStorage) Delete(accountId string) error {
-	return os.Remove(fmt.Sprintf("%s.json", accountId))
+	data, err := os.ReadFile(fmt.Sprintf("%s.app", accountId))
+	if err != nil {
+		return err
+	}
+	var app appInfo
+	if err = json.Unmarshal(data, &app); err != nil {
+		return err
+	}
+	app.Status = moyskladapptemplate.StatusInactive
+	data, err = json.Marshal(app)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(fmt.Sprintf("%s.app", accountId), data, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (fs FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatus, error) {
@@ -35,11 +54,7 @@ func (fs FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatus
 	if err != nil {
 		return "", err
 	}
-	var app struct {
-		AccountId   string                        `json:"account_id"`
-		Status      moyskladapptemplate.AppStatus `json:"status"`
-		AccessToken string                        `json:"access_token"`
-	}
+	var app appInfo
 	if err = json.Unmarshal(data, &app); err != nil {
 		return "", err
 	}

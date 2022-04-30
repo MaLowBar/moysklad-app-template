@@ -40,9 +40,7 @@ type App struct {
 	srv     *echo.Echo
 }
 
-const vendorAPIURL = "/api/moysklad/vendor/1.0/apps/:appId/:accountId"
-
-func NewApp(appInfo AppInfo, storage AppStorage, handlers ...AppHandler) *App {
+func NewApp(appInfo AppInfo, vendorAPIURL string, storage AppStorage, handlers ...AppHandler) *App {
 	app := &App{
 		info:    appInfo,
 		storage: storage,
@@ -50,7 +48,7 @@ func NewApp(appInfo AppInfo, storage AppStorage, handlers ...AppHandler) *App {
 
 	srv := echo.New()
 
-	srv.Use(middleware.Logger(), middleware.Recover(), middleware.JWT(appInfo.SecretKey))
+	srv.Use(middleware.Logger(), middleware.Recover())
 
 	srv.Add("PUT", vendorAPIURL, app.activateHandler)
 	srv.Add("DELETE", vendorAPIURL, app.deleteHandler)
