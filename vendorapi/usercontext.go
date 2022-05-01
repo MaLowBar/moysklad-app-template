@@ -9,7 +9,7 @@ type UserContext struct {
 	Email       string `json:"email,omitempty"`
 	Phone       string `json:"phone,omitempty"`
 	Position    string `json:"position,omitempty"`
-	Permissions []struct {
+	Permissions struct {
 		Admin struct {
 			View string `json:"view"`
 		} `json:"admin,omitempty"`
