@@ -7,7 +7,14 @@ import (
 	"os"
 )
 
-type FileStorage struct{}
+type FileStorage struct {
+	path string
+}
+
+// NewFileStorage returns new FileStorage with configured path. Path must have "/" postfix.
+func NewFileStorage(path string) FileStorage {
+	return FileStorage{path: path}
+}
 
 type appInfo struct {
 	AccountId   string                        `json:"account_id"`
@@ -21,7 +28,7 @@ func (fs FileStorage) Activate(accountId, accessToken string) (moyskladapptempla
 	if err != nil {
 		return "", err
 	}
-	err = os.WriteFile(fmt.Sprintf("%s.app", accountId), data, 0644)
+	err = os.WriteFile(fmt.Sprintf("%s%s.app", fs.path, accountId), data, 0644)
 	if err != nil {
 		return "", err
 	}
@@ -29,7 +36,7 @@ func (fs FileStorage) Activate(accountId, accessToken string) (moyskladapptempla
 }
 
 func (fs FileStorage) Delete(accountId string) error {
-	data, err := os.ReadFile(fmt.Sprintf("%s.app", accountId))
+	data, err := os.ReadFile(fmt.Sprintf("%s%s.app", fs.path, accountId))
 	if err != nil {
 		return err
 	}
@@ -37,12 +44,12 @@ func (fs FileStorage) Delete(accountId string) error {
 	if err = json.Unmarshal(data, &app); err != nil {
 		return err
 	}
-	app.Status = moyskladapptemplate.StatusInactive
+	app.Status = moyskladapptemplate.StatusSuspended
 	data, err = json.Marshal(app)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(fmt.Sprintf("%s.app", accountId), data, 0644)
+	err = os.WriteFile(fmt.Sprintf("%s%s.app", fs.path, accountId), data, 0644)
 	if err != nil {
 		return err
 	}
@@ -50,7 +57,7 @@ func (fs FileStorage) Delete(accountId string) error {
 }
 
 func (fs FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatus, error) {
-	data, err := os.ReadFile(fmt.Sprintf("%s.app", accountId))
+	data, err := os.ReadFile(fmt.Sprintf("%s%s.app", fs.path, accountId))
 	if err != nil {
 		return "", err
 	}
