@@ -55,14 +55,14 @@ func GetUserContext(contextKey string, appInfo moyskladapptemplate.AppConfig) (*
 	}
 	defer resp.Body.Close()
 
-	var userContext *UserContext
+	var userContext UserContext
 
 	if resp.StatusCode == http.StatusOK {
-		err = json.NewDecoder(resp.Body).Decode(userContext)
+		err = json.NewDecoder(resp.Body).Decode(&userContext)
 		if err != nil {
 			return nil, err
 		}
-		return userContext, nil
+		return &userContext, nil
 	} else {
 		var apiError moyskladapptemplate.JSONAPIError
 		err = json.NewDecoder(resp.Body).Decode(&apiError)
