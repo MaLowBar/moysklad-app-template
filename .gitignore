@@ -6,6 +6,7 @@
 *.test
 *.out
 *.iml
+*.app
 
 .idea
 .vscode

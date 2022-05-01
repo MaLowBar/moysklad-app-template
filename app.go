@@ -6,11 +6,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"net/http"
+	"time"
 )
 
-type AppInfo struct {
-	ID        string
-	SecretKey string
+type AppConfig struct {
+	ID           string
+	SecretKey    string
+	VendorAPIURL string
 }
 
 type AppStatus string
@@ -19,7 +21,7 @@ const (
 	StatusActivated        AppStatus = "Activated"
 	StatusSettingsRequired AppStatus = "Settings required"
 	StatusActivating       AppStatus = "Activating"
-	StatusInactive         AppStatus = "Inactive"
+	StatusSuspended        AppStatus = "Suspended"
 )
 
 type AppStorage interface {
@@ -35,14 +37,14 @@ type AppHandler struct {
 }
 
 type App struct {
-	info    AppInfo
+	info    AppConfig
 	storage AppStorage
 	srv     *echo.Echo
 }
 
-func NewApp(appInfo AppInfo, vendorAPIURL string, storage AppStorage, handlers ...AppHandler) *App {
+func NewApp(appConfig AppConfig, storage AppStorage, handlers ...AppHandler) *App {
 	app := &App{
-		info:    appInfo,
+		info:    appConfig,
 		storage: storage,
 	}
 
@@ -50,6 +52,7 @@ func NewApp(appInfo AppInfo, vendorAPIURL string, storage AppStorage, handlers .
 
 	srv.Use(middleware.Logger(), middleware.Recover())
 
+	vendorAPIURL := appConfig.VendorAPIURL
 	srv.Add("PUT", vendorAPIURL, app.activateHandler)
 	srv.Add("DELETE", vendorAPIURL, app.deleteHandler)
 	srv.Add("GET", vendorAPIURL, app.getStatusHandler)
@@ -67,8 +70,10 @@ func (a *App) Run(addr string) error {
 	return a.srv.Start(addr)
 }
 
-func (a *App) Stop() error {
-	return a.srv.Shutdown(context.Background())
+func (a *App) Stop(timeout int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+	return a.srv.Shutdown(ctx)
 }
 
 type activateReq struct {
@@ -84,11 +89,17 @@ func (a *App) activateHandler(c echo.Context) error {
 
 	var req activateReq
 	if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
-		return c.NoContent(http.StatusBadRequest)
+		return &echo.HTTPError{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		}
 	}
 
 	if status, err := a.storage.Activate(c.Param("accountId"), req.Access[0].AccessToken); err != nil {
-		return c.NoContent(http.StatusInternalServerError)
+		return &echo.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		}
 	} else {
 		return c.JSON(http.StatusOK, map[string]string{"status": string(status)})
 	}
@@ -100,7 +111,10 @@ func (a *App) deleteHandler(c echo.Context) error {
 	}
 
 	if err := a.storage.Delete(c.Param("accountId")); err != nil {
-		return c.NoContent(http.StatusInternalServerError)
+		return &echo.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		}
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -111,9 +125,15 @@ func (a *App) getStatusHandler(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	if status, err := a.storage.GetStatus(c.Param("accountId")); err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	} else {
-		return c.JSON(http.StatusOK, map[string]string{"status": string(status)})
+	status, err := a.storage.GetStatus(c.Param("accountId"))
+	if err != nil {
+		return &echo.HTTPError{
+			Code:    http.StatusInternalServerError,
+			Message: err.Error(),
+		}
 	}
+	if status == StatusSuspended {
+		return c.NoContent(http.StatusNotFound)
+	}
+	return c.JSON(http.StatusOK, map[string]string{"status": string(status)})
 }
