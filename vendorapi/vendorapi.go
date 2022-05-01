@@ -15,7 +15,7 @@ import (
 const marketplaceEndpoint = "https://online.moysklad.ru/api/vendor/1.0"
 
 var (
-	HTTPClientTimeout = time.Duration(60)
+	HTTPClientTimeout = time.Duration(60) * time.Second
 	client            = http.Client{Timeout: HTTPClientTimeout}
 )
 
