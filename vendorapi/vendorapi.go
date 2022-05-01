@@ -45,7 +45,7 @@ func vendorRequest(appInfo moyskladapptemplate.AppConfig, method, url string, bo
 }
 
 func GetUserContext(contextKey string, appInfo moyskladapptemplate.AppConfig) (*UserContext, error) {
-	req, err := vendorRequest(appInfo, "GET", marketplaceEndpoint+"/context/"+contextKey, nil)
+	req, err := vendorRequest(appInfo, "POST", marketplaceEndpoint+"/context/"+contextKey, nil)
 	if err != nil {
 		return nil, err
 	}
