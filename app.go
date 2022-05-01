@@ -63,11 +63,11 @@ func NewApp(appInfo AppInfo, vendorAPIURL string, storage AppStorage, handlers .
 	return app
 }
 
-func (a App) Run(addr string) error {
+func (a *App) Run(addr string) error {
 	return a.srv.Start(addr)
 }
 
-func (a App) Stop() error {
+func (a *App) Stop() error {
 	return a.srv.Shutdown(context.Background())
 }
 
@@ -77,7 +77,7 @@ type activateReq struct {
 	} `json:"access,omitempty"`
 }
 
-func (a App) activateHandler(c echo.Context) error {
+func (a *App) activateHandler(c echo.Context) error {
 	if a.info.ID != c.Param("appId") {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -94,7 +94,7 @@ func (a App) activateHandler(c echo.Context) error {
 	}
 }
 
-func (a App) deleteHandler(c echo.Context) error {
+func (a *App) deleteHandler(c echo.Context) error {
 	if a.info.ID != c.Param("appId") {
 		return c.NoContent(http.StatusNotFound)
 	}
@@ -106,7 +106,7 @@ func (a App) deleteHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (a App) getStatusHandler(c echo.Context) error {
+func (a *App) getStatusHandler(c echo.Context) error {
 	if a.info.ID != c.Param("appId") {
 		return c.NoContent(http.StatusNotFound)
 	}
