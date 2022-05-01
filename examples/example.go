@@ -10,16 +10,17 @@ import (
 )
 
 func main() {
-	var info = moyskladapptemplate.AppInfo{
-		ID:        "fb08e3f3-8f1a-488e-a609-1baa389cc546",
-		SecretKey: "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
+	var info = moyskladapptemplate.AppConfig{
+		ID:           "fb08e3f3-8f1a-488e-a609-1baa389cc546",
+		SecretKey:    "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
+		VendorAPIURL: "/echo/api/moysklad/vendor/1.0/apps/:appId/:accountId",
 	}
 	//myStorage, err := storage.NewPostgreStorage("postgres://msgo:pswd@localhost/msgo_db")
 	//if err != nil {
 	//	log.Fatal(fmt.Errorf("cannot create storage: %w", err))
 	//	return
 	//}
-	myStorage := storage.FileStorage{}
+	myStorage := storage.NewFileStorage("./")
 
 	var iframeHandler = moyskladapptemplate.AppHandler{
 		Method: "GET",
@@ -38,7 +39,7 @@ func main() {
 		},
 	}
 
-	app := moyskladapptemplate.NewApp(info, "/echo/api/moysklad/vendor/1.0/apps/:appId/:accountId", myStorage, iframeHandler)
+	app := moyskladapptemplate.NewApp(info, myStorage, iframeHandler)
 
 	e := make(chan error)
 	go func() {
@@ -52,7 +53,7 @@ func main() {
 	case err := <-e:
 		log.Printf("Server returned error: %s", err)
 	case <-c:
-		app.Stop()
+		app.Stop(5)
 		log.Println("Stop signal received")
 	}
 }
