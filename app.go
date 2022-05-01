@@ -11,6 +11,7 @@ import (
 
 type AppConfig struct {
 	ID           string
+	UID          string
 	SecretKey    string
 	VendorAPIURL string
 }

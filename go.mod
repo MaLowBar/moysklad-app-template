@@ -3,12 +3,13 @@ module github.com/MaLowBar/moysklad-app-template
 go 1.18
 
 require (
+	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/labstack/echo/v4 v4.7.2
 )
 
 require (
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.12.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
