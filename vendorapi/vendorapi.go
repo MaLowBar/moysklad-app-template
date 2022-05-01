@@ -36,7 +36,7 @@ func vendorRequest(appInfo moyskladapptemplate.AppConfig, method, url string, bo
 		Id:       jti.String(),
 	})
 
-	tokenString, err := token.SignedString(appInfo.SecretKey)
+	tokenString, err := token.SignedString([]byte(appInfo.SecretKey))
 	if err != nil {
 		return nil, err
 	}
