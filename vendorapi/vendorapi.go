@@ -15,8 +15,8 @@ import (
 const marketplaceEndpoint = "https://online.moysklad.ru/api/vendor/1.0"
 
 var (
-	HTTPClientTimeout = time.Duration(60) * time.Second
-	client            = http.Client{Timeout: HTTPClientTimeout}
+	HTTPClientTimeout = 60
+	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
 )
 
 func vendorRequest(appInfo moyskladapptemplate.AppConfig, method, url string, body io.Reader) (*http.Request, error) {
