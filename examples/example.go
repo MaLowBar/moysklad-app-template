@@ -91,7 +91,7 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	select {
-	case err := <-e:
+	case err = <-e:
 		log.Printf("Server returned error: %s", err)
 	case <-c:
 		app.Stop(5)
