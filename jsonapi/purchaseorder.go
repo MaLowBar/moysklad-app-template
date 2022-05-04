@@ -71,11 +71,21 @@ type PurchaseOrder struct {
 	WaitSum     float64          `json:"waitSum,omitempty"`
 	// TODO: Разобраться с полем Attributes
 
-	CustomerOrders []Meta `json:"customerOrders,omitempty"`
-	InvoiceIns     []Meta `json:"invoiceIns,omitempty"`
-	Payments       []Meta `json:"payments,omitempty"`
-	Supplies       []Meta `json:"supplies,omitempty"`
-	InternalOrder  Meta   `json:"internalOrder,omitempty"`
+	CustomerOrders []struct {
+		Meta Meta `json:"meta"`
+	} `json:"customerOrders,omitempty"`
+	InvoiceIns []struct {
+		Meta Meta `json:"meta"`
+	} `json:"invoiceIns,omitempty"`
+	Payments []struct {
+		Meta Meta `json:"meta"`
+	} `json:"payments,omitempty"`
+	Supplies []struct {
+		Meta Meta `json:"meta"`
+	} `json:"supplies,omitempty"`
+	InternalOrder struct {
+		Meta Meta `json:"meta"`
+	} `json:"internalOrder,omitempty"`
 }
 
 type PurchaseOrders struct {
