@@ -30,7 +30,10 @@ func main() {
 	//}
 
 	// Инициализируем файловое хранилище
-	myStorage := storage.NewFileStorage("./")
+	myStorage, err := storage.NewFileStorage("./")
+	if err != nil {
+		log.Fatalf("Cannot create app storage: %s", err.Error())
+	}
 
 	// Определяем простейший обработчик для HTML-документа
 	var iframeHandler = moyskladapptemplate.AppHandler{

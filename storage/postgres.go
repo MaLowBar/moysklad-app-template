@@ -8,26 +8,38 @@ import (
 )
 
 type PostgreStorage struct {
-	db *sql.DB
+	db   *sql.DB
+	apps []appInfo
 }
 
-func (s PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatus, error) {
+func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatus, error) {
 	_, err := s.db.Exec(`INSERT INTO apps VALUES ($1, $2, $3)`, accountId, templ.StatusActivated, accessToken)
 	if err != nil {
 		return "", err
 	}
+
+	app := appInfo{AccountId: accountId, Status: templ.StatusActivated, AccessToken: accessToken}
+	s.apps = append(s.apps, app)
+
 	return templ.StatusActivated, nil
 }
 
-func (s PostgreStorage) Delete(accountId string) error {
+func (s *PostgreStorage) Delete(accountId string) error {
 	_, err := s.db.Exec(`DELETE FROM apps WHERE accountId = $1`, accountId)
 	if err != nil {
 		return err
 	}
+
+	for i, a := range s.apps {
+		if a.AccountId == accountId {
+			s.apps = append(s.apps[:i], s.apps[i+1:]...)
+		}
+	}
+
 	return nil
 }
 
-func (s PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
+func (s *PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
 	row := s.db.QueryRow(`SELECT status FROM apps WHERE accountId = $1`, accountId)
 	if err := row.Err(); err != nil {
 		return "", err
@@ -48,5 +60,21 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &PostgreStorage{db: db}, nil
+
+	apps := make([]appInfo, 0)
+	rows, err := db.Query(`SELECT accountId, status, accessToken FROM apps`)
+	defer rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var app appInfo
+		err = rows.Scan(&app.AccountId, &app.Status, &app.AccessToken)
+		if err != nil {
+			return nil, err
+		}
+		apps = append(apps, app)
+	}
+	return &PostgreStorage{db: db, apps: apps}, nil
 }
