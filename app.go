@@ -13,6 +13,7 @@ type AppConfig struct {
 	ID           string
 	UID          string
 	SecretKey    string
+	AccessToken  string
 	VendorAPIURL string
 }
 

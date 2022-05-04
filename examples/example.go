@@ -29,7 +29,7 @@ func main() {
 	//}
 
 	// Инициализируем файловое хранилище
-	myStorage := storage.NewFileStorage("./")
+	myStorage := storage.NewFileStorage(info, "./")
 
 	// Определяем простейший обработчик для HTML-документа
 	var iframeHandler = moyskladapptemplate.AppHandler{

@@ -8,12 +8,13 @@ import (
 )
 
 type FileStorage struct {
+	moyskladapptemplate.AppConfig
 	path string
 }
 
 // NewFileStorage returns new FileStorage with configured path. Path must have "/" postfix.
-func NewFileStorage(path string) FileStorage {
-	return FileStorage{path: path}
+func NewFileStorage(info moyskladapptemplate.AppConfig, path string) FileStorage {
+	return FileStorage{AppConfig: info, path: path}
 }
 
 type appInfo struct {
@@ -32,6 +33,7 @@ func (fs FileStorage) Activate(accountId, accessToken string) (moyskladapptempla
 	if err != nil {
 		return "", err
 	}
+	fs.AccessToken = accessToken
 	return app.Status, nil
 }
 
