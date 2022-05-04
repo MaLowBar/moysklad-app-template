@@ -13,6 +13,34 @@ type PostgreStorage struct {
 	apps []appInfo
 }
 
+func NewPostgreStorage(connect string) (*PostgreStorage, error) {
+	db, err := sql.Open("pgx", connect)
+	if err != nil {
+		return nil, err
+	}
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS apps (accountId varchar, status varchar, accessToken varchar)`)
+	if err != nil {
+		return nil, err
+	}
+
+	apps := make([]appInfo, 0)
+	rows, err := db.Query(`SELECT accountId, status, accessToken FROM apps`)
+	defer rows.Close()
+
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var app appInfo
+		err = rows.Scan(&app.AccountId, &app.Status, &app.AccessToken)
+		if err != nil {
+			return nil, err
+		}
+		apps = append(apps, app)
+	}
+	return &PostgreStorage{db: db, apps: apps}, nil
+}
+
 func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatus, error) {
 	_, err := s.db.Exec(`INSERT INTO apps VALUES ($1, $2, $3)`, accountId, templ.StatusActivated, accessToken)
 	if err != nil {
@@ -58,33 +86,5 @@ func (s *PostgreStorage) AccessTokenByAccountId(accountId string) (string, error
 			return a.AccessToken, nil
 		}
 	}
-	return "", fmt.Errorf("no app asotiated with this account id: %s", accountId)
-}
-
-func NewPostgreStorage(connect string) (*PostgreStorage, error) {
-	db, err := sql.Open("pgx", connect)
-	if err != nil {
-		return nil, err
-	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS apps (accountId varchar, status varchar, accessToken varchar)`)
-	if err != nil {
-		return nil, err
-	}
-
-	apps := make([]appInfo, 0)
-	rows, err := db.Query(`SELECT accountId, status, accessToken FROM apps`)
-	defer rows.Close()
-
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var app appInfo
-		err = rows.Scan(&app.AccountId, &app.Status, &app.AccessToken)
-		if err != nil {
-			return nil, err
-		}
-		apps = append(apps, app)
-	}
-	return &PostgreStorage{db: db, apps: apps}, nil
+	return "", fmt.Errorf("no app associated with this account id: %s", accountId)
 }

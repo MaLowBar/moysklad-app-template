@@ -105,5 +105,5 @@ func (fs *FileStorage) AccessTokenByAccountId(accountId string) (string, error) 
 			return a.AccessToken, nil
 		}
 	}
-	return "", fmt.Errorf("no app asotiated with this account id: %s", accountId)
+	return "", fmt.Errorf("no app associated with this account id: %s", accountId)
 }
