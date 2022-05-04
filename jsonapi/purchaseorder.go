@@ -17,22 +17,22 @@ type PurchaseOrder struct {
 	DeliveryPlannedMoment utils.MSJsonTime `json:"deliveryPlannedMoment,omitempty"`
 	Description           string           `json:"description,omitempty"`
 	ExternalCode          string           `json:"externalCode"`
-	Files                 []Meta           `json:"files"`
-	Group                 Meta             `json:"group"`
-	ID                    string           `json:"id"`
-	InvoicedSum           float64          `json:"invoicedSum,omitempty"`
-	Meta                  Meta             `json:"meta"`
-	Moment                utils.MSJsonTime `json:"moment"`
-	Name                  string           `json:"name"`
-	Organization          Meta             `json:"organization"`
-	OrganizationAccount   Meta             `json:"organizationAccount,omitempty"`
-	Owner                 Meta             `json:"owner"`
-	PayedSum              float64          `json:"payedSum,omitempty"`
-	Positions             []Meta           `json:"positions"`
-	Printed               bool             `json:"printed"`
-	Project               Meta             `json:"project,omitempty"`
-	Published             bool             `json:"published"`
-	Rate                  struct {
+	//Files                 TODO: jsonapi.Files           `json:"files"`
+	Group               Meta             `json:"group"`
+	ID                  string           `json:"id"`
+	InvoicedSum         float64          `json:"invoicedSum,omitempty"`
+	Meta                Meta             `json:"meta"`
+	Moment              utils.MSJsonTime `json:"moment"`
+	Name                string           `json:"name"`
+	Organization        Meta             `json:"organization"`
+	OrganizationAccount Meta             `json:"organizationAccount,omitempty"`
+	Owner               Meta             `json:"owner"`
+	PayedSum            float64          `json:"payedSum,omitempty"`
+	Positions           []Meta           `json:"positions"`
+	Printed             bool             `json:"printed"`
+	Project             Meta             `json:"project,omitempty"`
+	Published           bool             `json:"published"`
+	Rate                struct {
 		Currency Meta    `json:"currency"`
 		Value    float64 `json:"value,omitempty"`
 	} `json:"rate,omitempty"`
