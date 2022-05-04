@@ -6,7 +6,7 @@ type Meta struct {
 	Type         string `json:"type"`
 	UUIDHref     string `json:"uuidHref,omitempty"`
 	DownloadHref string `json:"downloadHref,omitempty"`
-	Size         string `json:"size,omitempty"`
-	Limit        string `json:"limit,omitempty"`
-	Offset       string `json:"offset,omitempty"`
+	Size         int    `json:"size,omitempty"`
+	Limit        int    `json:"limit,omitempty"`
+	Offset       int    `json:"offset,omitempty"`
 }
