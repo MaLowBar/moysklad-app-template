@@ -39,12 +39,12 @@ type AppHandler struct {
 }
 
 type App struct {
-	info    AppConfig
+	info    *AppConfig
 	storage AppStorage
 	srv     *echo.Echo
 }
 
-func NewApp(appConfig AppConfig, storage AppStorage, handlers ...AppHandler) *App {
+func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *App {
 	app := &App{
 		info:    appConfig,
 		storage: storage,

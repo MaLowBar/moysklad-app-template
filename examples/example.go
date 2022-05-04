@@ -76,7 +76,7 @@ func main() {
 		},
 	}
 	// Создаем приложение
-	app := moyskladapptemplate.NewApp(info, myStorage, iframeHandler, formHandler)
+	app := moyskladapptemplate.NewApp(&info, myStorage, iframeHandler, formHandler)
 
 	e := make(chan error)
 	go func() {
