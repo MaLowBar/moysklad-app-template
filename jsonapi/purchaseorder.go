@@ -40,7 +40,7 @@ type PurchaseOrder struct {
 	ShippedSum  float64          `json:"shippedSum,omitempty"`
 	State       Meta             `json:"state,omitempty"`
 	Store       Meta             `json:"store,omitempty"`
-	Sum         int              `json:"sum,omitempty"`
+	Sum         float64          `json:"sum,omitempty"`
 	SyncID      string           `json:"syncId,omitempty"`
 	Updated     utils.MSJsonTime `json:"updated"`
 	VatEnabled  bool             `json:"vatEnabled"`
