@@ -55,12 +55,13 @@ func main() {
             <h1> Hello, %s! </h1>
 			<h2> Your id: %s </h2>
 			<form action="/echo/test-get-purchaseorders" method="POST">
+			<input type="hidden" name="accountId" value="%s"/>
   			<p><input type="submit" value="Click here"></p>
  			</form> 
         </center>    
     </body>
 </html>
-`, userContext.FullName, userContext.ID))
+`, userContext.FullName, userContext.ID, userContext.AccountID))
 		},
 	}
 
@@ -68,7 +69,7 @@ func main() {
 		Method: "POST",
 		Path:   "/echo/test-get-purchaseorders",
 		HandlerFunc: func(c echo.Context) error {
-			orders, err := jsonapi.GetPurchaseOrders(info)
+			orders, err := jsonapi.GetPurchaseOrders(myStorage, c.FormValue("accountId"))
 			if err != nil {
 				return &echo.HTTPError{
 					Code:    http.StatusInternalServerError,

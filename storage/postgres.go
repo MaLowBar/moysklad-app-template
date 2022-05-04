@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	templ "github.com/MaLowBar/moysklad-app-template"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -49,6 +50,15 @@ func (s *PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
 		return "", err
 	}
 	return status, nil
+}
+
+func (s *PostgreStorage) AccessTokenByAccountId(accountId string) (string, error) {
+	for _, a := range s.apps {
+		if a.AccountId == accountId {
+			return a.AccessToken, nil
+		}
+	}
+	return "", fmt.Errorf("no app asotiated with this account id: %s", accountId)
 }
 
 func NewPostgreStorage(connect string) (*PostgreStorage, error) {

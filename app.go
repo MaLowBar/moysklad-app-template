@@ -30,6 +30,7 @@ type AppStorage interface {
 	Activate(accountId, accessToken string) (AppStatus, error)
 	Delete(accountId string) error
 	GetStatus(accountId string) (AppStatus, error)
+	AccessTokenByAccountId(accountId string) (string, error)
 }
 
 type AppHandler struct {

@@ -98,3 +98,12 @@ func (fs *FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatu
 	}
 	return app.Status, nil
 }
+
+func (fs *FileStorage) AccessTokenByAccountId(accountId string) (string, error) {
+	for _, a := range fs.apps {
+		if a.AccountId == accountId {
+			return a.AccessToken, nil
+		}
+	}
+	return "", fmt.Errorf("no app asotiated with this account id: %s", accountId)
+}

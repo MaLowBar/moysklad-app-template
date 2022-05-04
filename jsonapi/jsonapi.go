@@ -18,8 +18,13 @@ var (
 	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
 )
 
-func GetPurchaseOrders(appInfo moyskladapptemplate.AppConfig) (*PurchaseOrders, error) {
-	req, err := utils.Request("GET", jsonEndpoint+"/entity/purchaseorder", appInfo.AccessToken, nil)
+func GetPurchaseOrders(storage moyskladapptemplate.AppStorage, accountId string) (*PurchaseOrders, error) {
+	accessToken, err := storage.AccessTokenByAccountId(accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := utils.Request("GET", jsonEndpoint+"/entity/purchaseorder", accessToken, nil)
 	if err != nil {
 		return nil, err
 	}
