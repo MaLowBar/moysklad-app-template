@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 )
 
 func Request(method, url, bearerToken string, body io.Reader) (*http.Request, error) {
@@ -15,4 +18,20 @@ func Request(method, url, bearerToken string, body io.Reader) (*http.Request, er
 		"Content-Type":  {"application/json"},
 	}
 	return req, nil
+}
+
+type MSJsonTime time.Time
+
+func (j *MSJsonTime) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("2006-01-02 15:04:05", s)
+	if err != nil {
+		return err
+	}
+	*j = MSJsonTime(t)
+	return nil
+}
+
+func (j MSJsonTime) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Time(j))
 }

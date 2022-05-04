@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/MaLowBar/moysklad-app-template"
+	"github.com/MaLowBar/moysklad-app-template/jsonapi"
 	"github.com/MaLowBar/moysklad-app-template/storage"
 	"github.com/MaLowBar/moysklad-app-template/vendorapi"
 	"github.com/labstack/echo/v4"
@@ -29,7 +30,10 @@ func main() {
 	//}
 
 	// Инициализируем файловое хранилище
-	myStorage := storage.NewFileStorage("./")
+	myStorage, err := storage.NewFileStorage("./")
+	if err != nil {
+		log.Fatalf("Cannot create app storage: %s", err.Error())
+	}
 
 	// Определяем простейший обработчик для HTML-документа
 	var iframeHandler = moyskladapptemplate.AppHandler{
@@ -50,14 +54,33 @@ func main() {
         <center>
             <h1> Hello, %s! </h1>
 			<h2> Your id: %s </h2>
+			<form action="/echo/test-get-purchaseorders" method="POST">
+			<input type="hidden" name="accountId" value="%s"/>
+  			<p><input type="submit" value="Click here"></p>
+ 			</form> 
         </center>    
     </body>
 </html>
-`, userContext.FullName, userContext.ID))
+`, userContext.FullName, userContext.ID, userContext.AccountID))
+		},
+	}
+
+	formHandler := moyskladapptemplate.AppHandler{
+		Method: "POST",
+		Path:   "/echo/test-get-purchaseorders",
+		HandlerFunc: func(c echo.Context) error {
+			orders, err := jsonapi.GetPurchaseOrders(myStorage, c.FormValue("accountId"))
+			if err != nil {
+				return &echo.HTTPError{
+					Code:    http.StatusInternalServerError,
+					Message: err,
+				}
+			}
+			return c.JSON(200, orders)
 		},
 	}
 	// Создаем приложение
-	app := moyskladapptemplate.NewApp(info, myStorage, iframeHandler)
+	app := moyskladapptemplate.NewApp(&info, myStorage, iframeHandler, formHandler)
 
 	e := make(chan error)
 	go func() {
@@ -68,7 +91,7 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 
 	select {
-	case err := <-e:
+	case err = <-e:
 		log.Printf("Server returned error: %s", err)
 	case <-c:
 		app.Stop(5)
