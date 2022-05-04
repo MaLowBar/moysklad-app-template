@@ -103,6 +103,7 @@ func (a *App) activateHandler(c echo.Context) error {
 			Message: err.Error(),
 		}
 	} else {
+		a.info.AccessToken = req.Access[0].AccessToken
 		return c.JSON(http.StatusOK, map[string]string{"status": string(status)})
 	}
 }

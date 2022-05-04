@@ -8,7 +8,6 @@ import (
 )
 
 type PostgreStorage struct {
-	*templ.AppConfig
 	db *sql.DB
 }
 
@@ -17,7 +16,6 @@ func (s PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatus
 	if err != nil {
 		return "", err
 	}
-	s.AppConfig.AccessToken = accessToken
 	return templ.StatusActivated, nil
 }
 
@@ -41,7 +39,7 @@ func (s PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
 	return status, nil
 }
 
-func NewPostgreStorage(info *templ.AppConfig, connect string) (*PostgreStorage, error) {
+func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 	db, err := sql.Open("pgx", connect)
 	if err != nil {
 		return nil, err
@@ -50,5 +48,5 @@ func NewPostgreStorage(info *templ.AppConfig, connect string) (*PostgreStorage, 
 	if err != nil {
 		return nil, err
 	}
-	return &PostgreStorage{AppConfig: info, db: db}, nil
+	return &PostgreStorage{db: db}, nil
 }
