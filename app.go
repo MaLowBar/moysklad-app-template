@@ -20,7 +20,7 @@ type AppStatus string
 
 const (
 	StatusActivated        AppStatus = "Activated"
-	StatusSettingsRequired AppStatus = "Settings required"
+	StatusSettingsRequired AppStatus = "SettingsRequired"
 	StatusActivating       AppStatus = "Activating"
 	StatusSuspended        AppStatus = "Suspended"
 )
