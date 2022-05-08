@@ -10,12 +10,12 @@ import (
 
 type FileStorage struct {
 	path string
-	apps []appInfo
+	apps map[string]appInfo
 }
 
 // NewFileStorage returns new FileStorage with configured path. Path must have "/" postfix.
 func NewFileStorage(path string) (*FileStorage, error) {
-	apps := make([]appInfo, 0)
+	apps := make(map[string]appInfo)
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func NewFileStorage(path string) (*FileStorage, error) {
 			if err = json.Unmarshal(data, &app); err != nil {
 				return nil, err
 			}
-			apps = append(apps, app)
+			apps[app.AccountId] = app
 		}
 	}
 	return &FileStorage{path: path, apps: apps}, nil
@@ -54,7 +54,7 @@ func (fs *FileStorage) Activate(accountId, accessToken string) (moyskladapptempl
 		return "", err
 	}
 
-	fs.apps = append(fs.apps, app)
+	fs.apps[accountId] = app
 
 	return app.Status, nil
 }
@@ -78,11 +78,7 @@ func (fs *FileStorage) Delete(accountId string) error {
 		return err
 	}
 
-	for i, a := range fs.apps {
-		if a.AccountId == accountId {
-			fs.apps = append(fs.apps[:i], fs.apps[i+1:]...)
-		}
-	}
+	delete(fs.apps, accountId)
 
 	return nil
 }
@@ -100,10 +96,8 @@ func (fs *FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatu
 }
 
 func (fs *FileStorage) AccessTokenByAccountId(accountId string) (string, error) {
-	for _, a := range fs.apps {
-		if a.AccountId == accountId {
-			return a.AccessToken, nil
-		}
+	if a, ok := fs.apps[accountId]; ok {
+		return a.AccessToken, nil
 	}
 	return "", fmt.Errorf("no app associated with this account id: %s", accountId)
 }

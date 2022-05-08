@@ -55,9 +55,11 @@ func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *A
 	srv.Use(middleware.Logger(), middleware.Recover())
 
 	vendorAPIURL := appConfig.VendorAPIURL
-	srv.Add("PUT", vendorAPIURL, app.activateHandler)
-	srv.Add("DELETE", vendorAPIURL, app.deleteHandler)
-	srv.Add("GET", vendorAPIURL, app.getStatusHandler)
+
+	vendorAPI := srv.Group(vendorAPIURL, middleware.JWT([]byte(appConfig.SecretKey)))
+	vendorAPI.Add("PUT", "", app.activateHandler)
+	vendorAPI.Add("DELETE", "", app.deleteHandler)
+	vendorAPI.Add("GET", "", app.getStatusHandler)
 
 	for _, handler := range handlers {
 		srv.Add(handler.Method, handler.Path, handler.HandlerFunc)

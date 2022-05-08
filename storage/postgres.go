@@ -10,7 +10,7 @@ import (
 
 type PostgreStorage struct {
 	db   *sql.DB
-	apps []appInfo
+	apps map[string]appInfo
 }
 
 func NewPostgreStorage(connect string) (*PostgreStorage, error) {
@@ -23,7 +23,7 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 		return nil, err
 	}
 
-	apps := make([]appInfo, 0)
+	apps := make(map[string]appInfo)
 	rows, err := db.Query(`SELECT accountId, status, accessToken FROM apps`)
 	defer rows.Close()
 
@@ -36,7 +36,7 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 		if err != nil {
 			return nil, err
 		}
-		apps = append(apps, app)
+		apps[app.AccountId] = app
 	}
 	return &PostgreStorage{db: db, apps: apps}, nil
 }
@@ -48,7 +48,7 @@ func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatu
 	}
 
 	app := appInfo{AccountId: accountId, Status: templ.StatusActivated, AccessToken: accessToken}
-	s.apps = append(s.apps, app)
+	s.apps[accountId] = app
 
 	return templ.StatusActivated, nil
 }
@@ -59,11 +59,7 @@ func (s *PostgreStorage) Delete(accountId string) error {
 		return err
 	}
 
-	for i, a := range s.apps {
-		if a.AccountId == accountId {
-			s.apps = append(s.apps[:i], s.apps[i+1:]...)
-		}
-	}
+	delete(s.apps, accountId)
 
 	return nil
 }
@@ -81,10 +77,8 @@ func (s *PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
 }
 
 func (s *PostgreStorage) AccessTokenByAccountId(accountId string) (string, error) {
-	for _, a := range s.apps {
-		if a.AccountId == accountId {
-			return a.AccessToken, nil
-		}
+	if a, ok := s.apps[accountId]; ok {
+		return a.AccountId, nil
 	}
 	return "", fmt.Errorf("no app associated with this account id: %s", accountId)
 }
