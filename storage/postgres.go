@@ -78,7 +78,7 @@ func (s *PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
 
 func (s *PostgreStorage) AccessTokenByAccountId(accountId string) (string, error) {
 	if a, ok := s.apps[accountId]; ok {
-		return a.AccountId, nil
+		return a.AccessToken, nil
 	}
 	return "", fmt.Errorf("no app associated with this account id: %s", accountId)
 }
