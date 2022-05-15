@@ -35,3 +35,12 @@ func (j *MSJsonTime) UnmarshalJSON(b []byte) error {
 func (j MSJsonTime) MarshalJSON() ([]byte, error) {
 	return json.Marshal(time.Time(j))
 }
+
+func Fetch[T any](raw io.ReadCloser) (T, error) {
+	var data T
+	err := json.NewDecoder(raw).Decode(&data)
+	if err != nil {
+		return data, err
+	}
+	return data, nil
+}

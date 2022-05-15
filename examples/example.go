@@ -69,7 +69,8 @@ func main() {
 		Method: "POST",
 		Path:   "/echo/test-get-purchaseorders",
 		HandlerFunc: func(c echo.Context) error {
-			orders, err := jsonapi.GetPurchaseOrders(myStorage, c.FormValue("accountId"))
+			orders, err := jsonapi.GetAllEntities[jsonapi.PurchaseOrders](myStorage, c.FormValue("accountId"), "purchaseorder")
+			//orders, err := jsonapi.GetPurchaseOrders(myStorage, c.FormValue("accountId"))
 			if err != nil {
 				return &echo.HTTPError{
 					Code:    http.StatusInternalServerError,
