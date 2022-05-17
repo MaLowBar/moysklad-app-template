@@ -10,3 +10,7 @@ type Meta struct {
 	Limit        int    `json:"limit,omitempty"`
 	Offset       int    `json:"offset,omitempty"`
 }
+
+type metaWrap struct {
+	Meta Meta `json:"meta"`
+}

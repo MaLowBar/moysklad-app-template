@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/MaLowBar/moysklad-app-template"
-	"github.com/MaLowBar/moysklad-app-template/jsonapi"
-	"github.com/MaLowBar/moysklad-app-template/storage"
-	"github.com/MaLowBar/moysklad-app-template/vendorapi"
-	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+
+	moyskladapptemplate "github.com/MaLowBar/moysklad-app-template"
+	"github.com/MaLowBar/moysklad-app-template/jsonapi"
+	"github.com/MaLowBar/moysklad-app-template/storage"
+	"github.com/MaLowBar/moysklad-app-template/vendorapi"
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
@@ -69,14 +70,14 @@ func main() {
 		Method: "POST",
 		Path:   "/echo/test-get-purchaseorders",
 		HandlerFunc: func(c echo.Context) error {
-			orders, err := jsonapi.GetPurchaseOrders(myStorage, c.FormValue("accountId"))
+			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty")
 			if err != nil {
 				return &echo.HTTPError{
 					Code:    http.StatusInternalServerError,
 					Message: err,
 				}
 			}
-			return c.JSON(200, orders)
+			return c.JSON(200, counterparties)
 		},
 	}
 	// Создаем приложение
