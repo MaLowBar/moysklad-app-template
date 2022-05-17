@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
-	"time"
 
 	templ "github.com/MaLowBar/moysklad-app-template"
 	"github.com/MaLowBar/moysklad-app-template/utils"
@@ -22,13 +21,6 @@ import (
 
 const jsonEndpoint = "https://online.moysklad.ru/api/remap/1.2"
 
-var (
-	HTTPClientTimeout = 60
-	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
-	Tryes             = 3
-	Timeout           = 3
-)
-
 type Entities[T any] struct {
 	Meta    Meta `json:"meta"`
 	Context struct {
@@ -40,26 +32,7 @@ type Entities[T any] struct {
 }
 
 func getEntity[T any](url, accessToken string) (*T, error) {
-	res := new(T)
-	var err error
-	tryCount := Tryes
-	for tryCount > 0 {
-		res, err = getEnt[T](url, accessToken)
-		if err == nil {
-			break
-		}
-		time.Sleep(time.Duration(Timeout) * time.Second)
-		tryCount--
-	}
-	return res, err
-}
-
-func getEnt[T any](url, accessToken string) (*T, error) {
-	req, err := utils.Request("GET", url, accessToken, nil)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := client.Do(req)
+	resp, err := utils.MakeRequest("GET", url, accessToken, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +54,7 @@ func getEnt[T any](url, accessToken string) (*T, error) {
 	}
 }
 
-func GetAllEntities[T any, _ Entities[T]](storage templ.AppStorage, accountId, entity string) ([]T, error) {
+func GetAllEntities[T any](storage templ.AppStorage, accountId, entity string) ([]T, error) {
 	accessToken, err := storage.AccessTokenByAccountId(accountId)
 	if err != nil {
 		return nil, err
