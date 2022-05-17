@@ -3,19 +3,20 @@ package vendorapi
 import (
 	"crypto/rand"
 	"encoding/json"
+	"io"
+	"net/http"
+	"time"
+
 	moyskladapptemplate "github.com/MaLowBar/moysklad-app-template"
 	"github.com/MaLowBar/moysklad-app-template/utils"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt"
-	"io"
-	"net/http"
-	"time"
 )
 
 const marketplaceEndpoint = "https://online.moysklad.ru/api/vendor/1.0"
 
 var (
-	HTTPClientTimeout = 60
+	HTTPClientTimeout = uint64(60)
 	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
 )
 

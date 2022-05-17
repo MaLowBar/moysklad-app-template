@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	HTTPClientTimeout = 60
+	HTTPClientTimeout = uint64(60)
 	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
-	Tryes             = 3
-	Timeout           = 3
+	Tryes             = uint64(3)
+	Timeout           = uint64(3)
 )
 
 func Request(method, url, bearerToken string, body io.Reader) (*http.Request, error) {
