@@ -87,13 +87,3 @@ type PurchaseOrder struct {
 		Meta Meta `json:"meta"`
 	} `json:"internalOrder,omitempty"`
 }
-
-type PurchaseOrders struct {
-	Meta    Meta `json:"meta"`
-	Context struct {
-		Employee struct {
-			Meta Meta `json:"meta"`
-		} `json:"employee"`
-	} `json:"context"`
-	Rows []PurchaseOrder `json:"rows"`
-}
