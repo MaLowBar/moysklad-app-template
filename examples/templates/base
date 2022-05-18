@@ -1,0 +1,47 @@
+{{define "head"}}
+    <head>
+        <style>
+            #success_header {
+                left: 0; bottom: 0; /* Левый нижний угол */
+                padding: 7px; /* Поля вокруг текста */
+                background: #009900; /* Цвет фона */
+                color: #fff; /* Цвет текста */
+                width: 100%; /* Ширина слоя */
+                vertical-align: middle;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            #error_header {
+                left: 0; bottom: 0; /* Левый нижний угол */
+                padding: 7px; /* Поля вокруг текста */
+                background: #990000; /* Цвет фона */
+                color: #fff; /* Цвет текста */
+                width: 100%; /* Ширина слоя */
+                vertical-align: middle;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        </style>
+        <script>
+            (function() {
+                // функция добавляет прокрутку по всей длинне контента страницы
+                var h = -1;
+                var win = null;
+                function sendExpand() {
+                    if (typeof win != 'undefined' && win && document.body.scrollHeight !== h) {
+                        h = document.body.scrollHeight;
+                        const sendObject = {
+                            height: h - 140
+                        };
+                        win.postMessage(sendObject, '*');
+                    }
+                }
+                window.addEventListener('load', function () {
+                    win = parent;
+                    sendExpand();
+                });
+                setInterval(sendExpand, 250);
+            })();
+        </script>
+    </head>
+{{end}}

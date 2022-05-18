@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <html lang="ru">
+    {{template "head" .}}
+    <body><center>
+        {{if .errorMessage}}
+            <div id="error_header">
+                <h3 style='margin: 0;'>
+                    {{ .errorMessage}}
+                </h3>
+            </div>
+        {{end}}
+        {{if .successMessage}}
+            <div id="success_header">
+                <h3 style='margin: 0;'>
+                    {{ .successMessage}}
+                </h3>
+            </div>
+        {{end}}
+        {{if .fullName}}
+            <div>Привет, {{ .fullName }}!</div>
+            <br>
+        {{ end }}
+        {{if .list}}
+            <div>Имена всех контрагентов в системе: </div>
+            <div>
+                {{range index .list}}
+                    {{ .Name }}
+                {{end}}
+            </div>
+        {{else}}
+            <form action="/go-apps/test-app/get-counterparties" method="post">
+                <input name="accountId" value="{{ .accountId }}" hidden>
+                <button type="submit">Смотреть контрагентов</button>
+            </form>
+        {{end}}
+        {{ with $x := index . "reverse" }}
+           {{ call $x "foobar" }} &lt;-- this will call the $x with parameter "foobar"
+        {{ end }}
+    </center></body>
+</html>

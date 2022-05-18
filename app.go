@@ -3,10 +3,13 @@ package moyskladapptemplate
 import (
 	"context"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"html/template"
+	"io"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type AppConfig struct {
@@ -44,6 +47,14 @@ type App struct {
 	srv     *echo.Echo
 }
 
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
 func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *App {
 	app := &App{
 		info:    appConfig,
@@ -51,6 +62,12 @@ func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *A
 	}
 
 	srv := echo.New()
+
+	templatesPath := "./templates/"
+	t := &Template{
+		templates: template.Must(template.ParseFiles(templatesPath+"iframe", templatesPath+"base")),
+	}
+	srv.Renderer = t
 
 	srv.Use(middleware.Logger(), middleware.Recover())
 

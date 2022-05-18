@@ -3,9 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	moyskladapptemplate "github.com/MaLowBar/moysklad-app-template"
 	"os"
 	"strings"
+
+	moyskladapptemplate "github.com/MaLowBar/moysklad-app-template"
 )
 
 type FileStorage struct {

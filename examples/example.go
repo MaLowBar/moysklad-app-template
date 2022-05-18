@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -18,9 +17,9 @@ func main() {
 	// Задаём информацию необходимую для работы приложения
 	var info = moyskladapptemplate.AppConfig{
 		ID:           "fb08e3f3-8f1a-488e-a609-1baa389cc546",
-		UID:          "purchases-report-go.sorochinsky",
+		UID:          "test-app.sorochinsky",
 		SecretKey:    "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
-		VendorAPIURL: "/echo/api/moysklad/vendor/1.0/apps/:appId/:accountId",
+		VendorAPIURL: "/go-apps/test-app/api/moysklad/vendor/1.0/apps/:appId/:accountId",
 	}
 
 	// Можно использовать БД PostgreSQL
@@ -39,7 +38,7 @@ func main() {
 	// Определяем простейший обработчик для HTML-документа
 	var iframeHandler = moyskladapptemplate.AppHandler{
 		Method: "GET",
-		Path:   "/echo/iframe/purchases-report-go.sorochinsky",
+		Path:   "/go-apps/test-app/iframe",
 		HandlerFunc: func(c echo.Context) error {
 			userContext, err := vendorapi.GetUserContext(c.QueryParam("contextKey"), info)
 			if err != nil {
@@ -48,27 +47,16 @@ func main() {
 					Message: err,
 				}
 			}
-			return c.HTML(200, fmt.Sprintf(`<html>
-    <head>
-    </head>
-    <body>
-        <center>
-            <h1> Hello, %s! </h1>
-			<h2> Your id: %s </h2>
-			<form action="/echo/test-get-purchaseorders" method="POST">
-			<input type="hidden" name="accountId" value="%s"/>
-  			<p><input type="submit" value="Click here"></p>
- 			</form> 
-        </center>    
-    </body>
-</html>
-`, userContext.FullName, userContext.ID, userContext.AccountID))
+			return c.Render(http.StatusOK, "iframe", map[string]interface{}{
+				"fullName":  userContext.FullName,
+				"accountId": userContext.AccountID,
+			})
 		},
 	}
 
 	formHandler := moyskladapptemplate.AppHandler{
 		Method: "POST",
-		Path:   "/echo/test-get-purchaseorders",
+		Path:   "/go-apps/test-app/get-counterparties",
 		HandlerFunc: func(c echo.Context) error {
 			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty")
 			if err != nil {
@@ -77,7 +65,10 @@ func main() {
 					Message: err,
 				}
 			}
-			return c.JSON(200, counterparties)
+			return c.Render(http.StatusOK, "iframe", map[string]interface{}{
+				"successMessage": "Some message!",
+				"list":           counterparties,
+			})
 		},
 	}
 	// Создаем приложение
