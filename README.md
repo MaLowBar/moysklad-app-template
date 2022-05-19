@@ -1,6 +1,15 @@
 # Микрофреймворк для Go-приложений маркетплейса [МойСклад](https://www.moysklad.ru/ "Ссылка на главную страницу МойСклад")
 
-Данный пакет призван упростить и ускорить написание приложений для маркетплейса системы МойСклад на языке программирования Go. На данном этапе реализовано базовое взаимодействие с VendorAPI, т.е. активация, удаление и получение статуса приложения на аккаунте, запросы к JSON API и несколько конкретных типов сущностей. Также в пакете ```storage``` есть реализации файлового хранения базовых данных приложения и хранилище на основе БД PostgreSQL. В папке ```example``` представлен пример использования фреймворка:
+Данный пакет призван упростить и ускорить написание приложений для маркетплейса системы МойСклад на языке программирования Go. 
+На данном этапе реализовано:
+• базовое взаимодействие с VendorAPI, т.е. активация, удаление и получение статуса приложения на аккаунте,
+• запросы к JSON API 1.2 и несколько конкретных типов сущностей,
+• для реализации хранилища данных разработаны 2 пакета, которые работают с: файлами на диске и СУБД PostgreSQL,
+• для работы с шаблонами интерфейса приложения реализован Renderer в ```app.go``` на основе стандартной библиотеки ```html/template```.
+Pull requests и Issues приветствуются!
+
+## Описание и пример использования:
+Конфигурация приложения создается в виде экземпляра структуры moyskladapptemplate.AppConfig. Далее определяется хранилище данных и его тип. Далее для каждого эндпоинта создается обработчик в виде экземпляра структуры moyskladapptemplate.AppHandler и все созданные обработчики передаются в метод NewApp для создания цельного приложения. После этого приложение запускается. Пример кода:
 ```go
 package main
 
@@ -22,9 +31,9 @@ func main() {
 	// Задаём информацию необходимую для работы приложения
 	var info = moyskladapptemplate.AppConfig{
 		ID:           "fb08e3f3-8f1a-488e-a609-1baa389cc546",
-		UID:          "purchases-report-go.sorochinsky",
+		UID:          "test-app.sorochinsky",
 		SecretKey:    "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
-		VendorAPIURL: "/echo/api/moysklad/vendor/1.0/apps/:appId/:accountId",
+		VendorAPIURL: "/go-apps/test-app/api/moysklad/vendor/1.0/apps/:appId/:accountId",
 	}
 
 	// Можно использовать БД PostgreSQL
@@ -43,7 +52,7 @@ func main() {
 	// Определяем простейший обработчик для HTML-документа
 	var iframeHandler = moyskladapptemplate.AppHandler{
 		Method: "GET",
-		Path:   "/echo/iframe/purchases-report-go.sorochinsky",
+		Path:   "/go-apps/test-app/iframe",
 		HandlerFunc: func(c echo.Context) error {
 			userContext, err := vendorapi.GetUserContext(c.QueryParam("contextKey"), info)
 			if err != nil {
@@ -59,7 +68,7 @@ func main() {
         <center>
             <h1> Hello, %s! </h1>
 			<h2> Your id: %s </h2>
-			<form action="/echo/test-get-purchaseorders" method="POST">
+			<form action="/go-apps/test-app/get-purchaseorders" method="POST">
 			<input type="hidden" name="accountId" value="%s"/>
   			<p><input type="submit" value="Click here"></p>
  			</form> 
@@ -72,7 +81,7 @@ func main() {
 
 	formHandler := moyskladapptemplate.AppHandler{
 		Method: "POST",
-		Path:   "/echo/test-get-purchaseorders",
+		Path:   "/go-apps/test-app/get-purchaseorders",
 		HandlerFunc: func(c echo.Context) error {
 			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty")
 			if err != nil {
