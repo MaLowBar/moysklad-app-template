@@ -3,6 +3,7 @@ package vendorapi
 import (
 	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -65,12 +66,13 @@ func GetUserContext(contextKey string, appInfo moyskladapptemplate.AppConfig) (*
 		}
 		return &userContext, nil
 	} else {
-		var apiError moyskladapptemplate.JSONAPIError
-		err = json.NewDecoder(resp.Body).Decode(&apiError)
+		var body []byte
+		_, err = resp.Body.Read(body)
 		if err != nil {
 			return nil, err
 		}
-		return nil, apiError
+		return nil, fmt.Errorf("wrong status code %d while getting user context, repsponse body: %s", resp.StatusCode, body)
+
 	}
 
 }
