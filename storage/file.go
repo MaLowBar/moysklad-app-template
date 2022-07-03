@@ -11,12 +11,12 @@ import (
 
 type FileStorage struct {
 	path string
-	apps map[string]appInfo
+	apps map[string]AppInfo
 }
 
 // NewFileStorage returns new FileStorage with configured path. Path must have "/" postfix.
 func NewFileStorage(path string) (*FileStorage, error) {
-	apps := make(map[string]appInfo)
+	apps := make(map[string]AppInfo)
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func NewFileStorage(path string) (*FileStorage, error) {
 			if err != nil {
 				return nil, err
 			}
-			var app appInfo
+			var app AppInfo
 			if err = json.Unmarshal(data, &app); err != nil {
 				return nil, err
 			}
@@ -38,14 +38,8 @@ func NewFileStorage(path string) (*FileStorage, error) {
 	return &FileStorage{path: path, apps: apps}, nil
 }
 
-type appInfo struct {
-	AccountId   string                        `json:"account_id"`
-	Status      moyskladapptemplate.AppStatus `json:"status"`
-	AccessToken string                        `json:"access_token"`
-}
-
 func (fs *FileStorage) Activate(accountId, accessToken string) (moyskladapptemplate.AppStatus, error) {
-	app := appInfo{AccountId: accountId, Status: moyskladapptemplate.StatusActivated, AccessToken: accessToken}
+	app := AppInfo{AccountId: accountId, Status: moyskladapptemplate.StatusActivated, AccessToken: accessToken}
 	data, err := json.Marshal(app)
 	if err != nil {
 		return "", err
@@ -65,7 +59,7 @@ func (fs *FileStorage) Delete(accountId string) error {
 	if err != nil {
 		return err
 	}
-	var app appInfo
+	var app AppInfo
 	if err = json.Unmarshal(data, &app); err != nil {
 		return err
 	}
@@ -89,7 +83,7 @@ func (fs *FileStorage) GetStatus(accountId string) (moyskladapptemplate.AppStatu
 	if err != nil {
 		return "", err
 	}
-	var app appInfo
+	var app AppInfo
 	if err = json.Unmarshal(data, &app); err != nil {
 		return "", err
 	}

@@ -10,7 +10,7 @@ import (
 
 type PostgreStorage struct {
 	db   *sql.DB
-	apps map[string]appInfo
+	apps map[string]AppInfo
 }
 
 func NewPostgreStorage(connect string) (*PostgreStorage, error) {
@@ -23,7 +23,7 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 		return nil, err
 	}
 
-	apps := make(map[string]appInfo)
+	apps := make(map[string]AppInfo)
 	rows, err := db.Query(`SELECT accountId, status, accessToken FROM apps`)
 	defer rows.Close()
 
@@ -31,7 +31,7 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		var app appInfo
+		var app AppInfo
 		err = rows.Scan(&app.AccountId, &app.Status, &app.AccessToken)
 		if err != nil {
 			return nil, err
@@ -47,7 +47,7 @@ func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatu
 		return "", err
 	}
 
-	app := appInfo{AccountId: accountId, Status: templ.StatusActivated, AccessToken: accessToken}
+	app := AppInfo{AccountId: accountId, Status: templ.StatusActivated, AccessToken: accessToken}
 	s.apps[accountId] = app
 
 	return templ.StatusActivated, nil
