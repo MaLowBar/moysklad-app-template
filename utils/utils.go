@@ -11,7 +11,7 @@ import (
 var (
 	HTTPClientTimeout = uint64(60)
 	client            = http.Client{Timeout: time.Duration(HTTPClientTimeout) * time.Second}
-	Tryes             = uint64(3)
+	Attempts          = uint64(3)
 	Timeout           = uint64(3)
 )
 
@@ -59,7 +59,7 @@ func MakeRequest(method, url, accessToken string, body io.ReadCloser) (*http.Res
 	}
 	var resp *http.Response
 
-	tryCount := Tryes
+	tryCount := Attempts
 	for tryCount > 0 {
 		resp, err = client.Do(req)
 		if err == nil {
