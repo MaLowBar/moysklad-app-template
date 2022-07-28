@@ -25,14 +25,14 @@ func main() {
 	// Можно использовать БД PostgreSQL
 	//myStorage, err := storage.NewPostgreStorage("postgres://msgo:pswd@localhost/msgo_db")
 	//if err != nil {
-	//	log.Fatal(fmt.Errorf("cannot create storage: %w", err))
+	//	log.Panicf(fmt.Errorf("cannot create storage: %w", err))
 	//	return
 	//}
 
 	// Инициализируем файловое хранилище
 	myStorage, err := storage.NewFileStorage("./")
 	if err != nil {
-		log.Fatalf("Cannot create app storage: %s", err.Error())
+		log.Panicf("Cannot create app storage: %s", err.Error())
 	}
 
 	// Определяем простейший обработчик для HTML-документа
