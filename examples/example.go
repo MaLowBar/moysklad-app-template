@@ -71,8 +71,12 @@ func main() {
 			})
 		},
 	}
+
+	//Формируем слайс с именами шаблонов. Например: []string{"header.html", "footer.html"}
+	templateNames := []string{}
+
 	// Создаем приложение
-	app := moyskladapptemplate.NewApp(&info, myStorage, iframeHandler, formHandler)
+	app := moyskladapptemplate.NewApp(&info, myStorage, templateNames, iframeHandler, formHandler)
 
 	e := make(chan error)
 	go func() {

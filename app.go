@@ -55,7 +55,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *App {
+func NewApp(appConfig *AppConfig, storage AppStorage, templateNames []string, handlers ...AppHandler) *App {
 	app := &App{
 		info:    appConfig,
 		storage: storage,
@@ -65,8 +65,13 @@ func NewApp(appConfig *AppConfig, storage AppStorage, handlers ...AppHandler) *A
 
 	templatesPath := "./templates/"
 	t := &Template{
-		templates: template.Must(template.ParseFiles(templatesPath+"iframe", templatesPath+"base")),
+		templates: template.Must(template.ParseFiles(templatesPath+"iframe.html", templatesPath+"base")),
 	}
+
+	for _, tName := range templateNames {
+		t.templates.ParseFiles(templatesPath + tName)
+	}
+
 	srv.Renderer = t
 
 	srv.Use(middleware.Logger(), middleware.Recover())
