@@ -65,7 +65,7 @@ func NewApp(appConfig *AppConfig, storage AppStorage, templateNames []string, ha
 
 	templatesPath := "./templates/"
 	t := &Template{
-		templates: template.Must(template.ParseFiles(templatesPath+"iframe.html", templatesPath+"base")),
+		templates: template.Must(template.ParseFiles(templatesPath+"iframe", templatesPath+"base")),
 	}
 
 	for _, tName := range templateNames {
