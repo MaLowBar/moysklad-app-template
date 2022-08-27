@@ -58,7 +58,7 @@ func main() {
 		Method: "POST",
 		Path:   "/go-apps/test-app/get-counterparties",
 		HandlerFunc: func(c echo.Context) error {
-			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty")
+			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty", "")
 			if err != nil {
 				return &echo.HTTPError{
 					Code:    http.StatusInternalServerError,
