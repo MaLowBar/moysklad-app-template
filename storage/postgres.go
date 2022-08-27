@@ -3,13 +3,14 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+
 	templ "github.com/MaLowBar/moysklad-app-template"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 type PostgreStorage struct {
-	db   *sql.DB
+	DB   *sql.DB
 	apps map[string]AppInfo
 }
 
@@ -38,11 +39,11 @@ func NewPostgreStorage(connect string) (*PostgreStorage, error) {
 		}
 		apps[app.AccountId] = app
 	}
-	return &PostgreStorage{db: db, apps: apps}, nil
+	return &PostgreStorage{DB: db, apps: apps}, nil
 }
 
 func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatus, error) {
-	_, err := s.db.Exec(`INSERT INTO apps VALUES ($1, $2, $3)`, accountId, templ.StatusActivated, accessToken)
+	_, err := s.DB.Exec(`INSERT INTO apps VALUES ($1, $2, $3)`, accountId, templ.StatusActivated, accessToken)
 	if err != nil {
 		return "", err
 	}
@@ -54,7 +55,7 @@ func (s *PostgreStorage) Activate(accountId, accessToken string) (templ.AppStatu
 }
 
 func (s *PostgreStorage) Delete(accountId string) error {
-	_, err := s.db.Exec(`DELETE FROM apps WHERE accountId = $1`, accountId)
+	_, err := s.DB.Exec(`DELETE FROM apps WHERE accountId = $1`, accountId)
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,7 @@ func (s *PostgreStorage) Delete(accountId string) error {
 }
 
 func (s *PostgreStorage) GetStatus(accountId string) (templ.AppStatus, error) {
-	row := s.db.QueryRow(`SELECT status FROM apps WHERE accountId = $1`, accountId)
+	row := s.DB.QueryRow(`SELECT status FROM apps WHERE accountId = $1`, accountId)
 	if err := row.Err(); err != nil {
 		return "", err
 	}
