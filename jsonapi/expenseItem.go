@@ -7,12 +7,7 @@ type ExpenseItem struct {
 
 type ExpenseItemForReq struct {
 	ExpenseItem struct {
-		Meta struct {
-			Href         string `json:"href"`
-			MetaDataHref string `json:"metadataHref"`
-			Type         string `json:"type"`
-			MediaType    string `json:"mediaType"`
-		} `json:"meta"`
+		Meta Meta `json:"meta"`
 	} `json:"expenseItem"`
 }
 

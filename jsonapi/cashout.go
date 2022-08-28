@@ -15,3 +15,11 @@ type Cashout struct {
 	} `json:"project"`
 	Description string `json:"description"`
 }
+
+func (c Cashout) GetName() string {
+	return c.Name
+}
+
+func (c Cashout) GetID() string {
+	return c.Id
+}

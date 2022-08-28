@@ -1,6 +1,6 @@
 package jsonapi
 
-type Some interface {
+type GetterValues interface {
 	GetID() string
 	GetName() string
 }
