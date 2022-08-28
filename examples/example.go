@@ -22,7 +22,7 @@ func main() {
 		VendorAPIURL: "/go-apps/test-app/api/moysklad/vendor/1.0/apps/:appId/:accountId",
 		AppURL:       "https://dev1.the-progress-machine.ru/go-apps/dev1", // URL приложения
 	}
-	//Если есть необходимость в веб-хуках, создаем мапу вида ["entityType"][]string{"ACTION"} и передаем в info.info.WebHooksMap
+	//Если есть необходимость в веб-хуках, создаем мапу вида ["entityType"][]string{"ACTION"} и передаем в info.WebHooksMap
 	// whMap := make(map[string][]string)
 	// whMap["cashout"] = []string{"CREATE", "UPDATE"}
 	// info.WebHooksMap = whMap
