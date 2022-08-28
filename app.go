@@ -1,13 +1,16 @@
 package moyskladapptemplate
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 
+	"github.com/MaLowBar/moysklad-app-template/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -17,6 +20,8 @@ type AppConfig struct {
 	UID          string
 	SecretKey    string
 	VendorAPIURL string
+	AppURL       string
+	WebHooksMap  map[string][]string // ["entityType"][]{"ACTIONS"} Например: ["cashout"] = []string{"CREATE", "UPDATE"}
 }
 
 type AppStatus string
@@ -42,10 +47,20 @@ type AppHandler struct {
 }
 
 type App struct {
-	info    *AppConfig
-	storage AppStorage
-	srv     *echo.Echo
+	info        *AppConfig
+	storage     AppStorage
+	srv         *echo.Echo
+	webhooksId  []string
+	accessToken string
 }
+
+type webhook struct {
+	Url        string `json:"url"`
+	Action     string `json:"action"`
+	EntityType string `json:"entityType"`
+}
+
+var webhookURL = "https://online.moysklad.ru/api/remap/1.2/entity/webhook/"
 
 type Template struct {
 	templates *template.Template
@@ -121,6 +136,15 @@ func (a *App) activateHandler(c echo.Context) error {
 		}
 	}
 
+	a.accessToken = req.Access[0].AccessToken
+	whIdList, err := createWebhooks(a.accessToken, a.info.AppURL, a.info.WebHooksMap)
+	if err != nil {
+		return err
+	}
+	if len(whIdList) != 0 {
+		a.webhooksId = append(a.webhooksId, whIdList...)
+	}
+
 	if status, err := a.storage.Activate(c.Param("accountId"), req.Access[0].AccessToken); err != nil {
 		return &echo.HTTPError{
 			Code:    http.StatusInternalServerError,
@@ -134,6 +158,10 @@ func (a *App) activateHandler(c echo.Context) error {
 func (a *App) deleteHandler(c echo.Context) error {
 	if a.info.ID != c.Param("appId") {
 		return c.NoContent(http.StatusNotFound)
+	}
+
+	for _, v := range a.webhooksId {
+		utils.Request("DELETE", webhookURL+v, a.accessToken, nil)
 	}
 
 	if err := a.storage.Delete(c.Param("accountId")); err != nil {
@@ -162,4 +190,53 @@ func (a *App) getStatusHandler(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 	return c.JSON(http.StatusOK, map[string]string{"status": string(status)})
+}
+
+func createWebhooks(accessToken, appURL string, whMap map[string][]string) ([]string, error) {
+
+	type whId struct {
+		Id string `json:"id"`
+	}
+
+	idList := []string{}
+
+	for entityType, actions := range whMap {
+		for _, action := range actions {
+
+			wh := webhook{}
+			wh.Action = action
+			wh.EntityType = entityType
+			wh.Url = appURL + "/webhook-processor"
+
+			whid := whId{}
+			jsonBody, err := json.Marshal(wh)
+			if err != nil {
+				return idList, err
+			}
+			req, err := utils.Request("POST", webhookURL, accessToken, bytes.NewBuffer(jsonBody))
+			if err != nil {
+				return idList, err
+			}
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				return idList, err
+			}
+			defer resp.Body.Close()
+
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return idList, err
+			}
+
+			if err = json.Unmarshal(body, &whid); err != nil {
+				return idList, err
+			}
+
+			idList = append(idList, whid.Id)
+
+		}
+	}
+
+	return idList, nil
 }

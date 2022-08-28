@@ -20,7 +20,12 @@ func main() {
 		UID:          "test-app.sorochinsky",
 		SecretKey:    "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
 		VendorAPIURL: "/go-apps/test-app/api/moysklad/vendor/1.0/apps/:appId/:accountId",
+		AppURL:       "https://dev1.the-progress-machine.ru/go-apps/dev1", // URL приложения
 	}
+	//Если есть необходимость в веб-хуках, создаем мапу вида ["entityType"][]string{"ACTION"} и передаем в info.info.WebHooksMap
+	// whMap := make(map[string][]string)
+	// whMap["cashout"] = []string{"CREATE", "UPDATE"}
+	// info.WebHooksMap = whMap
 
 	// Можно использовать БД PostgreSQL
 	//myStorage, err := storage.NewPostgreStorage("postgres://msgo:pswd@localhost/msgo_db")
