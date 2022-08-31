@@ -20,7 +20,12 @@ func main() {
 		UID:          "test-app.sorochinsky",
 		SecretKey:    "8iv6RbvFlQsiDMqQz4ECczLjiwEZRfBkVKa2cMBmsHnzIg2ELuqdbQNXvloY65nQD1crmxdbCVXbx1CvnjY1Th9sUebNXOYnULPtZ40N2ujjv7EzbE6F5SEM9xucnEAL",
 		VendorAPIURL: "/go-apps/test-app/api/moysklad/vendor/1.0/apps/:appId/:accountId",
+		AppURL:       "https://dev1.the-progress-machine.ru/go-apps/dev1", // URL приложения
 	}
+	//Если есть необходимость в веб-хуках, создаем мапу вида ["entityType"][]string{"ACTION"} и передаем в info.WebHooksMap
+	// whMap := make(map[string][]string)
+	// whMap["cashout"] = []string{"CREATE", "UPDATE"}
+	// info.WebHooksMap = whMap
 
 	// Можно использовать БД PostgreSQL
 	//myStorage, err := storage.NewPostgreStorage("postgres://msgo:pswd@localhost/msgo_db")
@@ -58,7 +63,7 @@ func main() {
 		Method: "POST",
 		Path:   "/go-apps/test-app/get-counterparties",
 		HandlerFunc: func(c echo.Context) error {
-			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty")
+			counterparties, err := jsonapi.GetAllEntities[jsonapi.Counterparty](myStorage, c.FormValue("accountId"), "counterparty", "")
 			if err != nil {
 				return &echo.HTTPError{
 					Code:    http.StatusInternalServerError,
@@ -71,8 +76,12 @@ func main() {
 			})
 		},
 	}
+
+	//Формируем слайс с именами шаблонов. Например: []string{"header.html", "footer.html"}
+	templateNames := []string{}
+
 	// Создаем приложение
-	app := moyskladapptemplate.NewApp(&info, myStorage, iframeHandler, formHandler)
+	app := moyskladapptemplate.NewApp(&info, myStorage, templateNames, iframeHandler, formHandler)
 
 	e := make(chan error)
 	go func() {

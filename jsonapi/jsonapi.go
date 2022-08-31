@@ -3,6 +3,7 @@ package jsonapi
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"sync"
 
 	templ "github.com/MaLowBar/moysklad-app-template"
@@ -54,7 +55,7 @@ func getEntity[T any](url, accessToken string) (*T, error) {
 	}
 }
 
-func GetAllEntities[T any](storage templ.AppStorage, accountId, entity string) ([]T, error) {
+func GetAllEntities[T any](storage templ.AppStorage, accountId, entity, filter string) ([]T, error) {
 	accessToken, err := storage.AccessTokenByAccountId(accountId)
 	if err != nil {
 		return nil, err
@@ -83,7 +84,15 @@ func GetAllEntities[T any](storage templ.AppStorage, accountId, entity string) (
 	for i := 0; i < maxWorkers; i++ {
 		go func(input chan int, errors chan error) {
 			for offset := range input {
-				ent, err := getEntity[Entities[T]](fmt.Sprintf("%s?offset=%d", url, offset), accessToken)
+				strUrl := fmt.Sprintf("%s?offset=%d", url, offset)
+				if filter != "" {
+					strUrl, err = newUrlWithFilter(strUrl, filter)
+					if err != nil {
+						errors <- err
+						continue
+					}
+				}
+				ent, err := getEntity[Entities[T]](strUrl, accessToken)
 				if err != nil {
 					errors <- err
 					continue
@@ -103,4 +112,17 @@ func GetAllEntities[T any](storage templ.AppStorage, accountId, entity string) (
 		}
 	}
 	return res, nil
+}
+
+func newUrlWithFilter(strUrl, filter string) (string, error) {
+	newUrl, err := url.Parse(strUrl)
+	if err != nil {
+		return "", err
+	}
+	values := newUrl.Query()
+	values.Add("filter", filter)
+
+	newUrl.RawQuery = values.Encode()
+
+	return newUrl.String(), nil
 }
